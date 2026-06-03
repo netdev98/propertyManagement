@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAUS — Architecture & Property, Berlin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Editorial+New:ital,wght@0,200;0,400;1,200;1,400&family=Neue+Haas+Grotesk+Display+Pro:wght@400;500&family=Syne:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&family=Syne+Mono&display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@200;300;400&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --w: #FFFFFF;
+      --off: #F9F8F5;
+      --ink: #111010;
+      --red: #C8281A;
+      --red-dim: #E8B8B3;
+      --mid: #878480;
+      --rule: #E4E2DC;
+      --faint: #F2F1ED;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--w);
+      color: var(--ink);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    #cur {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .25s, height .25s, background .25s;
+    }
+
+    #cur-trail {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(17, 16, 16, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width .3s, height .3s, border-color .3s;
+    }
+
+    body.hovering #cur {
+      width: 5px;
+      height: 5px;
+      background: var(--red)
+    }
+
+    body.hovering #cur-trail {
+      width: 52px;
+      height: 52px;
+      border-color: rgba(200, 40, 26, 0.18)
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 60px;
+      transition: padding .5s cubic-bezier(.4, 0, .2, 1), background .5s, border-color .5s;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.stuck {
+      padding: 16px 60px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-color: var(--rule);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      color: var(--w);
+      text-decoration: none;
+      transition: color .4s;
+    }
+
+    nav.stuck .logo {
+      color: var(--ink)
+    }
+
+    .nav-r {
+      display: flex;
+      align-items: center;
+      gap: 0
+    }
+
+    .nav-link {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.65);
+      text-decoration: none;
+      padding: 8px 20px;
+      position: relative;
+      transition: color .3s;
+      overflow: hidden;
+    }
+
+    nav.stuck .nav-link {
+      color: var(--mid)
+    }
+
+    .nav-link-inner {
+      display: block;
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .nav-link:hover .nav-link-inner {
+      transform: translateY(-110%)
+    }
+
+    .nav-link::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 108%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      transition: top .35s cubic-bezier(.4, 0, .2, 1);
+      white-space: nowrap;
+    }
+
+    .nav-link:hover::after {
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%)
+    }
+
+    nav.stuck .nav-link:hover .nav-link-inner {
+      transform: translateY(-110%)
+    }
+
+    .nav-contact {
+      margin-left: 24px;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: var(--w);
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: 'Syne', sans-serif;
+      font-weight: 500;
+      transition: background .3s, color .3s;
+    }
+
+    .nav-contact:hover {
+      background: var(--ink);
+      color: var(--w)
+    }
+
+    nav.stuck .nav-contact {
+      background: var(--red);
+      color: var(--w)
+    }
+
+    nav.stuck .nav-contact:hover {
+      background: var(--ink);
+      color: var(--w)
+    }
+
+    /* HERO — full viewport, split diagonal */
+    .hero {
+      height: 100vh;
+      min-height: 640px;
+      display: grid;
+      grid-template-columns: 55% 45%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left — dark ink panel */
+    .hero-l {
+      background: var(--ink);
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 72px 80px;
+      clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .4;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.3)
+      }
+    }
+
+    .hero-h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(64px, 6.8vw, 102px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      color: var(--w);
+      margin-bottom: 48px;
+    }
+
+    .hero-h1 span {
+      display: block;
+      font-style: italic;
+      color: var(--red);
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.9;
+      max-width: 300px;
+      margin-bottom: 56px;
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      padding-left: 20px;
+    }
+
+    .hero-btns {
+      display: flex;
+      align-items: center;
+      gap: 32px
+    }
+
+    .btn-solid {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-family: 'Syne', sans-serif;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--w);
+      padding: 16px 36px;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      transition: color .35s;
+    }
+
+    .btn-solid::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 0;
+      background: var(--red);
+      transition: height .35s cubic-bezier(.4, 0, .2, 1);
+      z-index: 0;
+    }
+
+    .btn-solid:hover::before {
+      height: 100%
+    }
+
+    .btn-solid span {
+      position: relative;
+      z-index: 1;
+      transition: color .35s
+    }
+
+    .btn-solid:hover span {
+      color: var(--w)
+    }
+
+    .hero-link {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: color .3s;
+    }
+
+    .hero-link:hover {
+      color: rgba(255, 255, 255, 0.9)
+    }
+
+    .hero-link svg {
+      transition: transform .3s
+    }
+
+    .hero-link:hover svg {
+      transform: translateX(6px)
+    }
+
+    /* Right — image panel */
+    .hero-r {
+      position: relative;
+      background: var(--ink);
+      margin-left: -4%;
+    }
+
+    .hero-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: linear-gradient(170deg, #1C2B3A 0%, #2A3F56 40%, #3A5570 70%, #1A2A38 100%);
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Architectural line art overlay */
+    .hero-bg-art {
+      position: absolute;
+      inset: 0;
+      opacity: 0.12;
+    }
+
+    .hero-caption {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+
+    /* Hero bottom scroll bar */
+    .hero-foot {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 55%;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 56px;
+      padding: 20px 72px;
+      backdrop-filter: blur(4px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 3;
+    }
+
+    .hstat .n {
+      font-family: 'Instrument Serif', serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: var(--w);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .hstat .l {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Scroll indicator */
+    .scroll-ind {
+      position: absolute;
+      right: 40px;
+      bottom: 40px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scroll-text {
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-bar {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35));
+      animation: scrollAnim 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollAnim {
+
+      0%,
+      100% {
+        transform: scaleY(0.6);
+        opacity: .5
+      }
+
+      50% {
+        transform: scaleY(1);
+        opacity: 1
+      }
+    }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 14px 0;
+      position: relative;
+    }
+
+    .marquee-inner {
+      display: flex;
+      gap: 0;
+      animation: marquee 40s linear infinite;
+    }
+
+    .marquee-wrap:hover .marquee-inner {
+      animation-play-state: paused
+    }
+
+    .mq-item {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+      padding: 0 32px;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--mid);
+      font-weight: 400;
+    }
+
+    .mq-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--red);
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    /* SERVICES */
+    .services {
+      padding: 160px 0 0
+    }
+
+    .srv-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 0 60px;
+      margin-bottom: 100px;
+      gap: 40px;
+      align-items: end;
+    }
+
+    .sec-label {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .sec-label-line {
+      width: 24px;
+      height: 1px;
+      background: var(--red)
+    }
+
+    .sec-h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(44px, 4.8vw, 68px);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .sec-h2 em {
+      font-style: italic;
+      color: var(--mid)
+    }
+
+    .sec-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.9;
+      max-width: 360px;
+      align-self: end;
+    }
+
+    /* Services — staggered columns layout */
+    .srv-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--rule);
+    }
+
+    .srv-col-l {
+      border-right: 1px solid var(--rule)
+    }
+
+    .srv-item {
+      padding: 52px 60px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      cursor: pointer;
+      transition: background .35s;
+      overflow: hidden;
+    }
+
+    .srv-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      background: var(--red);
+      transition: width .4s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .srv-item:hover::after {
+      width: 3px
+    }
+
+    .srv-item:hover {
+      background: var(--faint)
+    }
+
+    .srv-n {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--red-dim);
+      font-weight: 400;
+      margin-bottom: 20px;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .srv-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(24px, 2.6vw, 34px);
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.1;
+      margin-bottom: 16px;
+      transition: color .3s;
+    }
+
+    .srv-item:hover .srv-name {
+      color: var(--red)
+    }
+
+    .srv-tag {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--rule);
+      padding: 5px 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 400;
+      margin-bottom: 20px;
+      transition: border-color .3s, color .3s;
+    }
+
+    .srv-item:hover .srv-tag {
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    .srv-p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+      max-width: 340px;
+    }
+
+    /* FULL-WIDTH NUMBER BAND */
+    .number-band {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--ink);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nb-item {
+      padding: 64px 52px;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nb-item:last-child {
+      border-right: none
+    }
+
+    .nb-num {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(48px, 5vw, 72px);
+      font-weight: 400;
+      color: var(--w);
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .nb-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 400;
+    }
+
+    .nb-accent {
+      position: absolute;
+      bottom: -24px;
+      right: -12px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 120px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.025);
+      line-height: 1;
+      pointer-events: none;
+      font-style: italic;
+    }
+
+    /* ABOUT */
+    .about {
+      padding: 160px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: center;
+    }
+
+    .about-imgs {
+      position: relative;
+      height: 580px
+    }
+
+    .ab-main {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 82%;
+      height: 78%;
+      overflow: hidden;
+    }
+
+    .ab-main-bg {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(155deg, #c8d4e3 0%, #9ab0c8 50%, #6888a8 100%);
+      transform: scale(1.05);
+      transition: transform 10s ease;
+    }
+
+    .about:hover .ab-main-bg {
+      transform: scale(1)
+    }
+
+    .ab-accent {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 46%;
+      height: 46%;
+      overflow: hidden;
+      outline: 8px solid var(--w);
+    }
+
+    .ab-accent-bg {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(155deg, #1A1A1A 0%, #2C2C2C 100%);
+    }
+
+    .ab-label {
+      position: absolute;
+      top: 50%;
+      right: -20px;
+      transform: translateY(-50%) rotate(90deg);
+      transform-origin: center;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--mid);
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .about-text .sec-h2 {
+      margin-bottom: 36px
+    }
+
+    .about-p {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.95;
+      margin-bottom: 18px;
+    }
+
+    .about-team {
+      margin-top: 52px;
+      padding-top: 40px;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .team-stat {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .team-stat:nth-child(even) {
+      padding-left: 24px;
+      border-left: 1px solid var(--rule);
+    }
+
+    .ts-n {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .ts-l {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mid);
+      font-weight: 300;
+    }
+
+    /* PROCESS */
+    .process {
+      background: var(--faint);
+      padding: 140px 60px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-top: 80px;
+      border-left: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
+    }
+
+    .proc-step {
+      padding: 48px 36px;
+      border-right: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      transition: background .3s;
+      cursor: default;
+    }
+
+    .proc-step:hover {
+      background: var(--w)
+    }
+
+    .proc-num {
+      font-family: 'Instrument Serif', serif;
+      font-size: 56px;
+      font-weight: 400;
+      color: var(--rule);
+      line-height: 1;
+      margin-bottom: 28px;
+      font-style: italic;
+      transition: color .3s;
+    }
+
+    .proc-step:hover .proc-num {
+      color: var(--red-dim)
+    }
+
+    .proc-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .proc-desc {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.85;
+    }
+
+    /* REVIEWS */
+    .reviews {
+      padding: 160px 60px
+    }
+
+    .reviews-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 80px;
+      margin-top: 80px;
+      border-top: 1px solid var(--rule);
+      padding-top: 60px;
+    }
+
+    .reviews-meta {}
+
+    .rev-score-big {
+      font-family: 'Instrument Serif', serif;
+      font-size: 96px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .rev-stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px
+    }
+
+    .rev-stars span {
+      color: var(--red);
+      font-size: 18px
+    }
+
+    .rev-source {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .g-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: conic-gradient(#4285F4 0deg 90deg, #34A853 90deg 180deg, #FBBC05 180deg 270deg, #EA4335 270deg 360deg);
+      flex-shrink: 0;
+    }
+
+    .rev-total {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.8;
+    }
+
+    .reviews-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--rule);
+    }
+
+    .rev-card {
+      background: var(--w);
+      padding: 40px 36px;
+      transition: background .3s;
+    }
+
+    .rev-card:hover {
+      background: var(--faint)
+    }
+
+    .rev-card:nth-child(3) {
+      grid-column: span 2
+    }
+
+    .rc-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 20px
+    }
+
+    .rc-star {
+      color: var(--red);
+      font-size: 11px
+    }
+
+    .rc-q {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .rev-card:nth-child(3) .rc-q {
+      font-size: 22px
+    }
+
+    .rc-author {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .rc-av {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .av-a {
+      background: linear-gradient(135deg, #c8d4e3, #9ab0c8)
+    }
+
+    .av-b {
+      background: linear-gradient(135deg, #111010, #2c2c2c)
+    }
+
+    .av-c {
+      background: linear-gradient(135deg, #C8281A, #9B1F13)
+    }
+
+    .rc-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .rc-loc {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--mid);
+      letter-spacing: 0.04em;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      margin: 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--ink);
+      padding: 120px 60px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 60px;
+    }
+
+    .cta-bg-text {
+      position: absolute;
+      left: 0;
+      bottom: -40px;
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(160px, 16vw, 240px);
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.025);
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .cta-left {
+      position: relative;
+      z-index: 1
+    }
+
+    .cta-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .cta-h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(42px, 5vw, 72px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: var(--w);
+    }
+
+    .cta-h2 em {
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.45)
+    }
+
+    .cta-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .btn-red {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-family: 'Syne', sans-serif;
+      font-weight: 500;
+      color: var(--w);
+      background: var(--red);
+      border: none;
+      padding: 18px 40px;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      text-align: center;
+      transition: background .3s;
+      cursor: pointer;
+    }
+
+    .btn-red:hover {
+      background: #A8201A
+    }
+
+    .btn-ghost-w {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-family: 'Syne', sans-serif;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 18px 40px;
+      text-decoration: none;
+      display: block;
+      width: 100%;
+      text-align: center;
+      transition: all .3s;
+    }
+
+    .btn-ghost-w:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: var(--w)
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .foot-inner {
+      padding: 80px 60px 40px;
+    }
+
+    .foot-top {
+      display: grid;
+      grid-template-columns: 2.5fr 1fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 64px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .foot-brand .logo {
+      color: var(--w);
+      display: block;
+      margin-bottom: 22px;
+    }
+
+    .foot-tagline {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.3);
+      line-height: 1.9;
+      max-width: 260px;
+      margin-bottom: 36px;
+    }
+
+    .foot-soc {
+      display: flex;
+      gap: 12px
+    }
+
+    .soc-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 400;
+      transition: all .3s;
+    }
+
+    .soc-btn:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--w)
+    }
+
+    .foot-col-h {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.25);
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    .foot-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
+
+    .foot-links a {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.45);
+      text-decoration: none;
+      transition: color .3s;
+      letter-spacing: 0.02em;
+    }
+
+    .foot-links a:hover {
+      color: var(--w)
+    }
+
+    .foot-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+    }
+
+    .foot-copy {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.18);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+    }
+
+    .foot-legal {
+      display: flex;
+      gap: 28px
+    }
+
+    .foot-legal a {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.18);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color .3s;
+    }
+
+    .foot-legal a:hover {
+      color: rgba(255, 255, 255, 0.5)
+    }
+
+    /* RED accent line — decorative column */
+    .red-col {
+      width: 3px;
+      background: var(--red);
+      align-self: stretch;
+      display: block;
+    }
+
+    /* REVEAL ANIMATIONS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .85s ease, transform .85s ease
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .reveal.d1 {
+      transition-delay: .1s
+    }
+
+    .reveal.d2 {
+      transition-delay: .2s
+    }
+
+    .reveal.d3 {
+      transition-delay: .3s
+    }
+
+    .reveal.d4 {
+      transition-delay: .4s
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="cur"></div>
+  <div id="cur-trail"></div>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="logo">HAUS.</a>
+    <div class="nav-r">
+      <a href="#services" class="nav-link" data-text="Services"><span class="nav-link-inner">Services</span></a>
+      <a href="#about" class="nav-link" data-text="Studio"><span class="nav-link-inner">Studio</span></a>
+      <a href="#process" class="nav-link" data-text="Process"><span class="nav-link-inner">Process</span></a>
+      <a href="#reviews" class="nav-link" data-text="Reviews"><span class="nav-link-inner">Reviews</span></a>
+      <a href="#contact" class="nav-contact">Get in Touch</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-l">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-dot"></div>
+        London · Manchester · Edinburgh — Since 2007
+      </div>
+      <h1 class="hero-h1">
+        Space<br>
+        that<br>
+        <span>endures.</span>
+      </h1>
+      <p class="hero-desc">
+        We shape properties that last — architecturally excellent, conceptually clear, uncompromising in execution.
+      </p>
+      <div class="hero-btns">
+        <a href="#services" class="btn-solid"><span>Explore Services</span></a>
+        <a href="#about" class="hero-link">
+          Studio
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+            <line x1="0" y1="6" x2="16" y2="6" stroke="rgba(255,255,255,0.4)" stroke-width="1" />
+            <polyline points="11,1 17,6 11,11" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-r">
+      <div class="hero-bg">
+        <svg class="hero-bg-art" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice">
+          <rect x="60" y="80" width="480" height="720" fill="none" stroke="white" stroke-width="0.5" />
+          <rect x="100" y="140" width="200" height="280" fill="rgba(255,255,255,0.03)" stroke="white"
+            stroke-width="0.5" />
+          <rect x="320" y="140" width="180" height="280" fill="rgba(255,255,255,0.02)" stroke="white"
+            stroke-width="0.5" />
+          <rect x="100" y="460" width="200" height="280" fill="rgba(255,255,255,0.02)" stroke="white"
+            stroke-width="0.5" />
+          <rect x="320" y="460" width="180" height="280" fill="rgba(255,255,255,0.03)" stroke="white"
+            stroke-width="0.5" />
+          <line x1="60" y1="440" x2="540" y2="440" stroke="white" stroke-width="0.4" />
+          <line x1="300" y1="80" x2="300" y2="800" stroke="white" stroke-width="0.4" />
+          <line x1="60" y1="80" x2="540" y2="800" stroke="white" stroke-width="0.3" opacity="0.4" />
+          <circle cx="300" cy="440" r="120" fill="none" stroke="white" stroke-width="0.4" opacity="0.3" />
+          <circle cx="300" cy="440" r="60" fill="none" stroke="white" stroke-width="0.4" opacity="0.2" />
+        </svg>
+      </div>
+      <div class="hero-caption">Architecture &amp; Property · London 2026</div>
+    </div>
+
+    <div class="hero-foot">
+      <div class="hstat">
+        <div class="n">420+</div>
+        <div class="l">Projects</div>
+      </div>
+      <div class="hstat">
+        <div class="n">18</div>
+        <div class="l">Years</div>
+      </div>
+      <div class="hstat">
+        <div class="n">3</div>
+        <div class="l">Cities</div>
+      </div>
+      <div class="hstat">
+        <div class="n">98%</div>
+        <div class="l">Referral Rate</div>
+      </div>
+    </div>
+
+    <div class="scroll-ind">
+      <div class="scroll-text">Scroll</div>
+      <div class="scroll-bar"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-inner" id="mqInner">
+      <div class="mq-item">
+        <div class="mq-dot"></div>Architecture
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Interior Design
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Property Advisory
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Portfolio Management
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Luxury Renovation
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Investment Consulting
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Architecture
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Interior Design
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Property Advisory
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Portfolio Management
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Luxury Renovation
+      </div>
+      <div class="mq-item">
+        <div class="mq-dot"></div>Investment Consulting
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="srv-head reveal">
+      <div>
+        <div class="sec-label">
+          <div class="sec-label-line"></div>What We Do
+        </div>
+        <h2 class="sec-h2">What we<br><em>offer</em></h2>
+      </div>
+      <p class="sec-body">Six independent disciplines — designed to work alone or as an integrated system. Each is
+        complete enough to stand as its own brand.</p>
+    </div>
+
+    <div class="srv-cols">
+      <div class="srv-col-l">
+        <div class="srv-item reveal">
+          <div class="srv-n">01 —</div>
+          <div class="srv-name">Architectural Design</div>
+          <div class="srv-tag">New Build &amp; Conversion</div>
+          <p class="srv-p">From concept sketch to planning approval: we design buildings that are structurally sound and
+            aesthetically timeless.</p>
+        </div>
+        <div class="srv-item reveal d1">
+          <div class="srv-n">03 —</div>
+          <div class="srv-name">Property Acquisition</div>
+          <div class="srv-tag">Off-Market</div>
+          <p class="srv-p">Access to exclusive off-market properties that never reach public listings — with full due
+            diligence support.</p>
+        </div>
+        <div class="srv-item reveal d2">
+          <div class="srv-n">05 —</div>
+          <div class="srv-name">Luxury Renovation</div>
+          <div class="srv-tag">Full Service</div>
+          <p class="srv-p">Complete project management from strip-out to handover — with craftspeople sourced across
+            Europe.</p>
+        </div>
+      </div>
+      <div>
+        <div class="srv-item reveal">
+          <div class="srv-n">02 —</div>
+          <div class="srv-name">Interior Design</div>
+          <div class="srv-tag">FF&amp;E · Turnkey</div>
+          <p class="srv-p">Complete spatial design and FF&amp;E procurement — from concept through to installation with
+            exclusively curated materials.</p>
+        </div>
+        <div class="srv-item reveal d1">
+          <div class="srv-n">04 —</div>
+          <div class="srv-name">Portfolio Management</div>
+          <div class="srv-tag">Ongoing</div>
+          <p class="srv-p">Strategic asset oversight, lettings management and long-term value optimisation for private
+            and institutional owners.</p>
+        </div>
+        <div class="srv-item reveal d2">
+          <div class="srv-n">06 —</div>
+          <div class="srv-name">Investment Consulting</div>
+          <div class="srv-tag">Strategic</div>
+          <p class="srv-p">Market analysis, yield forecasting and acquisition strategy — for family offices, private
+            investors and developers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUMBER BAND -->
+  <div class="number-band">
+    <div class="nb-item reveal">
+      <div class="nb-num">420</div>
+      <div class="nb-label">Completed Projects</div>
+      <div class="nb-accent">+</div>
+    </div>
+    <div class="nb-item reveal d1">
+      <div class="nb-num">€2.4B</div>
+      <div class="nb-label">Assets Under Management</div>
+      <div class="nb-accent">€</div>
+    </div>
+    <div class="nb-item reveal d2">
+      <div class="nb-num">34</div>
+      <div class="nb-label">Architects &amp; Advisors</div>
+      <div class="nb-accent">i</div>
+    </div>
+    <div class="nb-item reveal d3">
+      <div class="nb-num">18</div>
+      <div class="nb-label">Years of Excellence</div>
+      <div class="nb-accent">J</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-imgs reveal">
+      <div class="ab-main">
+        <div class="ab-main-bg"></div>
+      </div>
+      <div class="ab-accent">
+        <div class="ab-accent-bg"></div>
+      </div>
+      <div class="ab-label">London Studio · Since 2007</div>
+    </div>
+
+    <div class="about-text reveal d2">
+      <div class="sec-label">
+        <div class="sec-label-line"></div>Studio
+      </div>
+      <h2 class="sec-h2">Space as<br>conviction —<br><em>not commodity</em></h2>
+      <p class="about-p">HAUS was founded in London in 2007 with a conviction that architecture and property should
+        never be separate disciplines. We think them together.</p>
+      <p class="about-p">Our team of 34 architects, designers, and advisors works at the intersection of design
+        excellence and strategic property development — across London, Manchester, and Edinburgh.</p>
+      <div class="about-team">
+        <div class="team-stat">
+          <div class="ts-n">34</div>
+          <div class="ts-l">Specialists</div>
+        </div>
+        <div class="team-stat">
+          <div class="ts-n">3</div>
+          <div class="ts-l">Locations</div>
+        </div>
+        <div class="team-stat">
+          <div class="ts-n">18</div>
+          <div class="ts-l">Years</div>
+        </div>
+        <div class="team-stat">
+          <div class="ts-n">12</div>
+          <div class="ts-l">Awards</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process" id="process">
+    <div class="srv-head reveal" style="padding:0;margin-bottom:0">
+      <div>
+        <div class="sec-label">
+          <div class="sec-label-line"></div>Our Process
+        </div>
+        <h2 class="sec-h2">How we<br><em>work</em></h2>
+      </div>
+      <p class="sec-body">Every project follows a clear, transparent process — designed to protect your investment and
+        your time in equal measure.</p>
+    </div>
+    <div class="process-grid">
+      <div class="proc-step reveal">
+        <div class="proc-num">01</div>
+        <div class="proc-title">Discovery</div>
+        <p class="proc-desc">A private consultation to understand your vision, constraints and aspirations. No
+          templates, no assumptions.</p>
+      </div>
+      <div class="proc-step reveal d1">
+        <div class="proc-num">02</div>
+        <div class="proc-title">Strategy</div>
+        <p class="proc-desc">We develop a bespoke proposal — encompassing scope, timeline, investment framework and
+          design direction.</p>
+      </div>
+      <div class="proc-step reveal d2">
+        <div class="proc-num">03</div>
+        <div class="proc-title">Execution</div>
+        <p class="proc-desc">Our integrated team leads every aspect of delivery — with regular reporting and zero
+          surprises.</p>
+      </div>
+      <div class="proc-step reveal d3">
+        <div class="proc-num">04</div>
+        <div class="proc-title">Handover</div>
+        <p class="proc-desc">A meticulous handover and an enduring partnership — because extraordinary spaces deserve
+          careful stewardship.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="reviews" id="reviews">
+    <div class="srv-head reveal" style="padding:0;margin-bottom:0">
+      <div>
+        <div class="sec-label">
+          <div class="sec-label-line"></div>Client Voices
+        </div>
+        <h2 class="sec-h2">What our<br><em>clients say</em></h2>
+      </div>
+      <p class="sec-body">Relationships built on results. Our reputation is not measured by awards — it is measured by
+        the trust our clients place in us.</p>
+    </div>
+
+    <div class="reviews-layout">
+      <div class="reviews-meta reveal">
+        <div class="rev-score-big">4.9</div>
+        <div class="rev-stars">
+          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        </div>
+        <div class="rev-source">
+          <div class="g-circle"></div>Google Reviews
+        </div>
+        <p class="rev-total">Based on<br><strong>143 Google Reviews</strong></p>
+      </div>
+
+      <div class="reviews-cards reveal d2">
+        <div class="rev-card">
+          <div class="rc-stars"><span class="rc-star">★</span><span class="rc-star">★</span><span
+              class="rc-star">★</span><span class="rc-star">★</span><span class="rc-star">★</span></div>
+          <div class="rc-q">"HAUS understood what we wanted before we could put it into words ourselves. The result
+            exceeded every expectation."</div>
+          <div class="rc-author">
+            <div class="rc-av av-a"></div>
+            <div>
+              <div class="rc-name">Sophie Hartmann</div>
+              <div class="rc-loc">London, United Kingdom</div>
+            </div>
+          </div>
+        </div>
+        <div class="rev-card">
+          <div class="rc-stars"><span class="rc-star">★</span><span class="rc-star">★</span><span
+              class="rc-star">★</span><span class="rc-star">★</span><span class="rc-star">★</span></div>
+          <div class="rc-q">"The renovation of our period property was an extraordinary experience. Every detail was
+            handled with exceptional care."</div>
+          <div class="rc-author">
+            <div class="rc-av av-b"></div>
+            <div>
+              <div class="rc-name">James Walsingham</div>
+              <div class="rc-loc">Manchester, United Kingdom</div>
+            </div>
+          </div>
+        </div>
+        <div class="rev-card">
+          <div class="rc-stars"><span class="rc-star">★</span><span class="rc-star">★</span><span
+              class="rc-star">★</span><span class="rc-star">★</span><span class="rc-star">★</span></div>
+          <div class="rc-q">"I have used three other agencies. None came close. HAUS is simply a different category of
+            service — deeply professional, genuinely creative, completely trustworthy."</div>
+          <div class="rc-author">
+            <div class="rc-av av-c"></div>
+            <div>
+              <div class="rc-name">Dr. Claire Morrison</div>
+              <div class="rc-loc">Edinburgh, United Kingdom</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact">
+    <div class="cta-bg-text">Enquire</div>
+    <div class="cta-left reveal">
+      <div class="cta-eyebrow">
+        <div class="sec-label-line"></div>Contact
+      </div>
+      <h2 class="cta-h2">Bereit für<br>Ihr Projekt?<br><em>Sprechen wir.</em></h2>
+    </div>
+    <div class="cta-right reveal d2">
+      <a href="#" class="btn-red">Get in Touch</a>
+      <a href="#" class="btn-ghost-w">View Portfolio</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-inner">
+      <div class="foot-top">
+        <div class="footer-brand">
+          <a href="#" class="logo">HAUS.</a>
+          <p class="foot-tagline">Architecture, interiors and property advisory for the European premium market. Offices
+            in London, Manchester and Edinburgh.</p>
+          <div class="foot-soc">
+            <a href="#" class="soc-btn">In</a>
+            <a href="#" class="soc-btn">Ig</a>
+            <a href="#" class="soc-btn">Pt</a>
+          </div>
+        </div>
+        <div>
+          <div class="foot-col-h">Services</div>
+          <ul class="foot-links">
+            <li><a href="#">Architecture</a></li>
+            <li><a href="#">Interior Design</a></li>
+            <li><a href="#">Acquisition</a></li>
+            <li><a href="#">Portfolio Mgmt</a></li>
+            <li><a href="#">Renovation</a></li>
+            <li><a href="#">Investment</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="foot-col-h">Studio</div>
+          <ul class="foot-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Our Process</a></li>
+            <li><a href="#">Case Studies</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="foot-col-h">Contact</div>
+          <ul class="foot-links">
+            <li><a href="#">London Office</a></li>
+            <li><a href="#">Manchester Office</a></li>
+            <li><a href="#">Edinburgh Office</a></li>
+            <li><a href="#">hello@hausstudio.co.uk</a></li>
+            <li><a href="#">+44 20 7946 0321</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <div class="foot-copy">© 2026 HAUS Studio Ltd. All rights reserved.</div>
+        <div class="foot-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Cookie Settings</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // CURSOR
+    const cur = document.getElementById('cur');
+    const trail = document.getElementById('cur-trail');
+    let mx = 0, my = 0, tx = 0, ty = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+    });
+
+    (function anim() {
+      tx += (mx - tx) * 0.1; ty += (my - ty) * 0.1;
+      trail.style.left = tx + 'px'; trail.style.top = ty + 'px';
+      requestAnimationFrame(anim);
+    })();
+
+    document.querySelectorAll('a,button,.srv-item,.rev-card,.proc-step').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+    });
+
+    // NAV
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('stuck', scrollY > 64);
+    }, { passive: true });
+
+    // REVEAL
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } });
+    }, { threshold: 0.1 });
+    els.forEach(e => io.observe(e));
+  </script>
+</body>
+
+</html>
